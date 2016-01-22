@@ -18,7 +18,7 @@ def reset_files():
 
 
 def clean_files():
-    run(r"""rm -r \
+    run(r"""rm -rf \
             /etc/asterisk \
             /etc/xivo* \
             /var/lib/asterisk \
