@@ -18,7 +18,7 @@ SSH_BASE_COMMAND = [
 ]
 
 
-def test_xivo_confgen():
+def test_xivo_confgen_user_cpu_time():
     elapsed_user_time = _time_remote_command(['xivo-confgen', 'test/benchmark'], '%U')
 
     assert_that(elapsed_user_time, less_than(0.1))
