@@ -7,4 +7,4 @@ import os.path
 ASSET_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     '..', 'assets')
-HOST = 'xivo-benchmark.lan-quebec.avencall.com'
+HOST = 'xivo-benchmark.lan.proformatique.com'

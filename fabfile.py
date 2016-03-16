@@ -4,7 +4,7 @@
 
 from fabric.api import run, sudo, env
 
-env.hosts = ['root@xivo-benchmark.lan-quebec.avencall.com']
+env.hosts = ['root@xivo-benchmark.lan.proformatique.com']
 
 
 def reset_server():
