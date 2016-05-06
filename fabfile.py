@@ -11,9 +11,9 @@ def reset_server():
     run("xivo-service stop")
     reset_files()
     reset_database()
+    run("xivo-service start")
     upgrade_server()
     snapshot_server()
-    run("xivo-service start")
 
 
 def reset_files():
