@@ -22,8 +22,11 @@ client = Client(constants.HOST,
 
 def test_csv_import():
     start = datetime.now()
-    upload_csv()
+    result = upload_csv()
     stop = datetime.now()
+
+    assert 'created' in result, 'Result should contains the created users:\n{}'.format(result)
+    assert len(result['created']) == 100, 'Should have created 100 users\n{}'.format(result)
     assert stop - start <= MAX_TIME, "CSV import exceeded max time ({})".format(MAX_TIME)
 
 
@@ -31,4 +34,4 @@ def upload_csv():
     filepath = os.path.join(constants.ASSET_DIR, "100entries.csv")
     with open(filepath) as f:
         csvdata = f.read()
-        client.users.import_csv(csvdata)
+        return client.users.import_csv(csvdata)
