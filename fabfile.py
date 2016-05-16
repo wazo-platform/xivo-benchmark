@@ -9,33 +9,10 @@ env.hosts = ['root@xivo-benchmark.lan.proformatique.com']
 
 def reset_server():
     run("xivo-service stop")
-    reset_files()
     reset_database()
     run("xivo-service start")
     upgrade_server()
     snapshot_server()
-
-
-def reset_files():
-    clean_files()
-    restore_files()
-
-
-def clean_files():
-    run(r"""rm -rf \
-            /etc/asterisk \
-            /etc/xivo* \
-            /var/lib/asterisk \
-            /var/lib/consul \
-            /var/lib/xivo-provd \
-            /var/lib/xivo \
-            /var/log/asterisk \
-            /var/spool/asterisk
-        """)
-
-
-def restore_files():
-    run("tar xvfp /var/tmp/snapshot/data.tgz -C /")
 
 
 def reset_database():
@@ -60,4 +37,3 @@ def upgrade_server():
 def snapshot_server():
     run("mkdir -p /var/tmp/snapshot")
     run("xivo-backup db /var/tmp/snapshot/db")
-    run("xivo-backup data /var/tmp/snapshot/data")
