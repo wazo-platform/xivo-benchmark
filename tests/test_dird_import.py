@@ -23,6 +23,7 @@ alice,1,alice,alice,Client
 
 def test_csv_import():
     auth_client = AuthClient(constants.HOST,
+                             verify_certificate=False,
                              username=USERNAME,
                              password=PASSWORD)
     dird_client = DirdClient(constants.HOST,
