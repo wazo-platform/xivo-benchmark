@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0+
 
 import os.path
+import time
 
 from xivo_auth_client import Client as AuthClient
 from xivo_confd_client import Client as ConfdClient
@@ -40,14 +41,19 @@ def test_csv_import():
     confd_client.users.import_csv(confd_data)
     token = auth_client.token.new('xivo_user', expiration=300)['token']
 
-    result = upload_csv(dird_client, token)
+    result, time_to_complete = upload_csv(dird_client, token)
 
     assert 'created' in result, 'The result does not contain created contacts'
     assert len(result['created']) == 1000, 'expected 1000 created contacts: {}'.format(len(result['created']))
+    assert time_to_complete < MAX_TIME, 'The import took too long {}s > {}s'.format(time_to_complete,
+                                                                                    MAX_TIME)
 
 
 def upload_csv(dird_client, token):
     filepath = os.path.join(constants.ASSET_DIR, "1000contacts.csv")
     with open(filepath) as f:
         csvdata = f.read()
-        return dird_client.personal.import_csv(csvdata, token=token)
+        start = time.time()
+        result = dird_client.personal.import_csv(csvdata, token=token)
+        end = time.time()
+        return result, end - start
