@@ -1,7 +1,7 @@
 XiVO Benchmark
 ==============
 
-Tests for measuring performance issues on physical xivo servers
+Tests for measuring performance issues on physical servers
 
 Setup
 =====
@@ -24,8 +24,8 @@ Once the server is ready, install the python dependencies for running the tests:
 Running tests
 =============
 
-These tests require a "fresh" install of XiVO before every run.  In order to avoid reinstalling a
-physical server every time, a fabfile with commands to reset the database and upgrade the xivo is
+These tests require a "fresh" install of Wazo before every run.  In order to avoid reinstalling a
+physical server every time, a fabfile with commands to reset the database and upgrade the Wazo is
 included. Resetting the server is done by running:
 
     fab reset_server
