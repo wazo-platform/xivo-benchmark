@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015 by Avencall
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from fabric.api import run, sudo, env
@@ -8,9 +8,9 @@ env.hosts = ['root@xivo-benchmark.lan.proformatique.com']
 
 
 def reset_server():
-    run("xivo-service stop")
+    run("wazo-service stop")
     reset_database()
-    run("xivo-service start")
+    run("wazo-service start")
     upgrade_server()
     snapshot_server()
 
@@ -31,7 +31,7 @@ def restore_database():
 
 
 def upgrade_server():
-    run("xivo-upgrade -f")
+    run("wazo-upgrade -f")
 
 
 def snapshot_server():
