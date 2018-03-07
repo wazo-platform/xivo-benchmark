@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016 by Avencall
+# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import os.path
@@ -39,7 +39,7 @@ def test_csv_import():
                                password='proformatique')
 
     confd_client.users.import_csv(confd_data)
-    token = auth_client.token.new('xivo_user', expiration=300)['token']
+    token = auth_client.token.new('wazo_user', expiration=300)['token']
 
     result, time_to_complete = upload_csv(dird_client, token)
 
