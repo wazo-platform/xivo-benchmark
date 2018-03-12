@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2016 by Avencall
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import os.path
@@ -10,7 +10,7 @@ from xivo_confd_client import Client
 
 from . import constants
 
-MAX_TIME = timedelta(seconds=60)
+MAX_TIME = timedelta(seconds=120)
 
 client = Client(constants.HOST,
                 https=True,
