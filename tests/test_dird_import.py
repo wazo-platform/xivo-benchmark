@@ -4,9 +4,9 @@
 
 import os.path
 import time
+import requests
 
 from xivo_auth_client import Client as AuthClient
-from xivo_confd_client import Client as ConfdClient
 from xivo_dird_client import Client as DirdClient
 
 from . import constants
@@ -14,32 +14,44 @@ from . import constants
 MAX_TIME = 10
 USERNAME = 'alice'
 PASSWORD = 'alice'
-FIRSTNAME = 'Alice'
 
-confd_data = """\
-firstname,cti_profile_enabled,username,password,cti_profile_name
-alice,1,alice,alice,Client
-"""
+
+def get_tenant_uuid(token_data):
+    for tenant in token_data['metadata']['tenants']:
+        if tenant['name'] == 'xivo-benchmark':
+            return tenant['uuid']
 
 
 def test_csv_import():
     auth_client = AuthClient(constants.HOST,
                              verify_certificate=False,
-                             username=USERNAME,
-                             password=PASSWORD)
+                             username='admin',
+                             password='proformatique')
     dird_client = DirdClient(constants.HOST,
                              https=True,
                              verify_certificate=False,
                              timeout=MAX_TIME)
-    confd_client = ConfdClient(constants.HOST,
-                               https=True,
-                               verify_certificate=False,
-                               port=9486,
-                               username='admin',
-                               password='proformatique')
 
-    confd_client.users.import_csv(confd_data)
-    token = auth_client.token.new('wazo_user', expiration=300)['token']
+    token_data = auth_client.token.new('xivo_service', expiration=300)
+    token = token_data['token']
+    auth_client.set_token(token)
+
+    tenant_uuid = get_tenant_uuid(token_data)
+    try:
+        auth_client.users.new(username=USERNAME, password=PASSWORD, tenant_uuid=tenant_uuid)
+    except requests.HTTPError as e:
+        if e.response.status_code == 409:
+            pass
+        else:
+            raise
+
+    user_auth_client = AuthClient(
+        constants.HOST,
+        verify_certificate=False,
+        username=USERNAME,
+        password=PASSWORD,
+    )
+    token = user_auth_client.token.new('wazo_user', expiration=300)['token']
 
     result, time_to_complete = upload_csv(dird_client, token)
 
