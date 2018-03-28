@@ -16,6 +16,9 @@ installation is finished you must go through the following steps:
  * add a webservice user
   * username: admin
   * password: proformatique
+  * acls:
+    * auth.users.create
+    * confd.users.import.create
 
 Once the server is ready, install the python dependencies for running the tests:
 

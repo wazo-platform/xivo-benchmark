@@ -6,23 +6,37 @@ import os.path
 
 from datetime import datetime, timedelta
 
-from xivo_confd_client import Client
+from xivo_auth_client import Client as AuthClient
+from xivo_confd_client import Client as ConfdClient
 
 from . import constants
 
 MAX_TIME = timedelta(seconds=120)
 
-client = Client(constants.HOST,
-                https=True,
-                verify_certificate=False,
-                port=9486,
-                username='admin',
-                password='proformatique')
+
+def get_tenant_uuid(token_data):
+    for tenant in token_data['metadata']['tenants']:
+        if tenant['name'] == 'xivo-benchmark':
+            return tenant['uuid']
 
 
 def test_csv_import():
+    auth_client = AuthClient(constants.HOST,
+                             verify_certificate=False,
+                             username='admin',
+                             password='proformatique')
+    token_data = auth_client.token.new('xivo_service', expiration=300)
+    token = token_data['token']
+    auth_client.set_token(token)
+
+    client = ConfdClient(constants.HOST,
+                         https=True,
+                         verify_certificate=False,
+                         port=9486,
+                         token=token)
+
     start = datetime.now()
-    result = upload_csv()
+    result = upload_csv(client, get_tenant_uuid(token_data))
     stop = datetime.now()
 
     assert 'created' in result, 'Result should contains the created users:\n{}'.format(result)
@@ -30,8 +44,8 @@ def test_csv_import():
     assert stop - start <= MAX_TIME, "CSV import exceeded max time ({})".format(MAX_TIME)
 
 
-def upload_csv():
+def upload_csv(client, tenant_uuid):
     filepath = os.path.join(constants.ASSET_DIR, "100entries.csv")
     with open(filepath) as f:
         csvdata = f.read()
-        return client.users.import_csv(csvdata)
+        return client.users.import_csv(csvdata, tenant_uuid=tenant_uuid)
