@@ -36,3 +36,13 @@ included. Resetting the server is done by running:
 Once the server is reset, run the tests with nose:
 
     nosetests tests
+
+
+Modifying the server
+==
+
+When the server needs to be modified to include new configurations the following steps should be taken.
+
+#. Restore the server to its initial state `fab reset_server`
+#. Make the required configurations
+#. Create a new snapshot such that reset_server take the modification into account `fab snapshot_server`
