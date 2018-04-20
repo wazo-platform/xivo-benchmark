@@ -16,8 +16,9 @@ USERNAME = 'alice'
 PASSWORD = 'alice'
 
 
-def get_tenant_uuid(token_data):
+def get_tenant_uuid(auth_client, token_data):
     for tenant in token_data['metadata']['tenants']:
+        tenant = auth_client.tenants.get(tenant['uuid'])
         if tenant['name'] == 'xivo-benchmark':
             return tenant['uuid']
 
@@ -36,7 +37,7 @@ def test_csv_import():
     token = token_data['token']
     auth_client.set_token(token)
 
-    tenant_uuid = get_tenant_uuid(token_data)
+    tenant_uuid = get_tenant_uuid(auth_client, token_data)
     try:
         auth_client.users.new(username=USERNAME, password=PASSWORD, tenant_uuid=tenant_uuid)
     except requests.HTTPError as e:

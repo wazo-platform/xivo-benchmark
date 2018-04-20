@@ -14,8 +14,9 @@ from . import constants
 MAX_TIME = timedelta(seconds=120)
 
 
-def get_tenant_uuid(token_data):
+def get_tenant_uuid(auth_client, token_data):
     for tenant in token_data['metadata']['tenants']:
+        tenant = auth_client.tenants.get(tenant['uuid'])
         if tenant['name'] == 'xivo-benchmark':
             return tenant['uuid']
 
@@ -36,7 +37,7 @@ def test_csv_import():
                          token=token)
 
     start = datetime.now()
-    result = upload_csv(client, get_tenant_uuid(token_data))
+    result = upload_csv(client, get_tenant_uuid(auth_client, token_data))
     stop = datetime.now()
 
     assert 'created' in result, 'Result should contains the created users:\n{}'.format(result)
