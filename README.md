@@ -32,7 +32,7 @@ These tests require a "fresh" install of Wazo before every run.  In order to avo
 physical server every time, a fabfile with commands to reset the database and upgrade the Wazo is
 included. Resetting the server is done by running:
 
-    fab reset_server
+    fab -H <host> reset_server
 
 Once the server is reset, run the tests with nose:
 
@@ -44,6 +44,6 @@ Modifying the server
 
 When the server needs to be modified to include new configurations the following steps should be taken.
 
-#. Restore the server to its initial state `fab reset_server`
+#. Restore the server to its initial state `fab -H <host> reset_server`
 #. Make the required configurations
-#. Create a new snapshot such that reset_server take the modification into account `fab snapshot_server`
+#. Create a new snapshot such that reset_server take the modification into account `fab -H <host> snapshot_server`
