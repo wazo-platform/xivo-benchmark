@@ -1,4 +1,5 @@
-fabric
+fabric>=2.0.0
+invoke>=1.0.0
 nose
 pyhamcrest
 git+https://github.com/wazo-pbx/xivo-dird-client.git
