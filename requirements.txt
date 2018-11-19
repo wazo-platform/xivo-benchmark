@@ -2,7 +2,7 @@ fabric>=2.0.0
 invoke>=1.0.0
 nose
 pyhamcrest
-git+https://github.com/wazo-pbx/xivo-dird-client.git
+git+https://github.com/wazo-pbx/wazo-dird-client.git
 git+https://github.com/wazo-pbx/xivo-auth-client.git
 git+https://github.com/wazo-pbx/xivo-confd-client.git
 git+https://github.com/wazo-pbx/xivo-lib-rest-client.git
