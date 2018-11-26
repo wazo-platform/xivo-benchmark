@@ -24,16 +24,20 @@ def get_tenant_uuid(auth_client, token_data):
 
 
 def test_csv_import():
-    auth_client = AuthClient(constants.HOST,
-                             verify_certificate=False,
-                             username='admin',
-                             password='proformatique')
-    dird_client = DirdClient(constants.HOST,
-                             https=True,
-                             verify_certificate=False,
-                             timeout=MAX_TIME)
+    auth_client = AuthClient(
+        constants.HOST,
+        verify_certificate=False,
+        username='admin',
+        password='proformatique'
+    )
+    dird_client = DirdClient(
+        constants.HOST,
+        https=True,
+        verify_certificate=False,
+        timeout=MAX_TIME
+    )
 
-    token_data = auth_client.token.new('xivo_service', expiration=300)
+    token_data = auth_client.token.new(expiration=300)
     token = token_data['token']
     auth_client.set_token(token)
 
