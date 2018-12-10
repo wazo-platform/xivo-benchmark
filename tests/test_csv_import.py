@@ -11,7 +11,7 @@ from xivo_confd_client import Client as ConfdClient
 
 from . import constants
 
-MAX_TIME = timedelta(seconds=120)
+MAX_TIME = timedelta(seconds=150)
 
 
 def test_csv_import():
