@@ -17,7 +17,6 @@ installation is finished you must go through the following steps:
   * username: admin
   * password: proformatique
   * acls:
-    * `auth.tenants.*.read`
     * `auth.users.create`
     * `confd.users.import.create`
 
