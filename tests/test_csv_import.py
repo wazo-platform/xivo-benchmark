@@ -1,4 +1,4 @@
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os.path
@@ -43,6 +43,6 @@ def test_csv_import():
 
 def upload_csv(client, tenant_uuid):
     filepath = os.path.join(constants.ASSET_DIR, "100entries.csv")
-    with open(filepath) as f:
+    with open(filepath, 'rb') as f:
         csvdata = f.read()
         return client.users.import_csv(csvdata, tenant_uuid=tenant_uuid)

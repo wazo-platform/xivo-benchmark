@@ -1,4 +1,4 @@
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os.path
@@ -63,7 +63,7 @@ def test_csv_import():
 
 def upload_csv(dird_client, token):
     filepath = os.path.join(constants.ASSET_DIR, "1000contacts.csv")
-    with open(filepath) as f:
+    with open(filepath, 'rb') as f:
         csvdata = f.read()
         start = time.time()
         result = dird_client.personal.import_csv(csvdata, token=token)
