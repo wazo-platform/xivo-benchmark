@@ -5,8 +5,8 @@ import os.path
 import time
 import requests
 
+from wazo_auth_client import Client as AuthClient
 from wazo_dird_client import Client as DirdClient
-from xivo_auth_client import Client as AuthClient
 
 from . import constants
 

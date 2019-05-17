@@ -5,7 +5,7 @@ import os.path
 
 from datetime import datetime, timedelta
 
-from xivo_auth_client import Client as AuthClient
+from wazo_auth_client import Client as AuthClient
 from xivo_confd_client import Client as ConfdClient
 
 from . import constants
