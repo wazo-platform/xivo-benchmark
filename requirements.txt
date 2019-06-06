@@ -3,6 +3,6 @@ invoke>=1.0.0
 nose
 pyhamcrest
 git+https://github.com/wazo-pbx/wazo-auth-client.git
+git+https://github.com/wazo-pbx/wazo-confd-client.git
 git+https://github.com/wazo-pbx/wazo-dird-client.git
-git+https://github.com/wazo-pbx/xivo-confd-client.git
 git+https://github.com/wazo-pbx/xivo-lib-rest-client.git
