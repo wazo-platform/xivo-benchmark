@@ -1,5 +1,5 @@
-fabric>=2.0.0
-invoke>=1.0.0
+fabric==2.3.0  # https://github.com/pyinvoke/invoke/issues/654
+invoke==1.2.0  # https://github.com/pyinvoke/invoke/issues/654
 nose
 pyhamcrest
 git+https://github.com/wazo-pbx/wazo-auth-client.git
