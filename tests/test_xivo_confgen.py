@@ -1,4 +1,4 @@
-# Copyright 2016 by Avencall
+# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import subprocess
@@ -18,7 +18,7 @@ SSH_BASE_COMMAND = [
 
 
 def test_xivo_confgen_user_cpu_time():
-    elapsed_user_time = _time_remote_command(['xivo-confgen', 'test/benchmark'], '%U')
+    elapsed_user_time = _time_remote_command(['wazo-confgen', 'test/benchmark'], '%U')
 
     assert_that(elapsed_user_time, less_than(0.1))
 
