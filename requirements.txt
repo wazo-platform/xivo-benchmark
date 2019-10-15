@@ -2,7 +2,7 @@ fabric==2.3.0  # https://github.com/pyinvoke/invoke/issues/654
 invoke==1.2.0  # https://github.com/pyinvoke/invoke/issues/654
 nose
 pyhamcrest
+git+https://github.com/wazo-platform/wazo-lib-rest-client.git
 git+https://github.com/wazo-platform/wazo-auth-client.git
 git+https://github.com/wazo-platform/wazo-confd-client.git
 git+https://github.com/wazo-platform/wazo-dird-client.git
-git+https://github.com/wazo-platform/xivo-lib-rest-client.git
