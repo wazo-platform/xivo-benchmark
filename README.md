@@ -33,9 +33,9 @@ included. Resetting the server is done by running:
 
     fab -H <host> reset-server
 
-Once the server is reset, run the tests with nose:
+Once the server is reset, run the tests with pytest:
 
-    nosetests tests
+    pytest tests
 
 
 Modifying the server
