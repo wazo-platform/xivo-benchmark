@@ -1,6 +1,7 @@
 # Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import time
 import os.path
 
 from datetime import datetime, timedelta
@@ -37,6 +38,9 @@ def test_csv_import():
     assert 'created' in result, 'Result should contains the created users:\n{}'.format(result)
     assert len(result['created']) == 100, 'Should have created 100 users\n{}'.format(result)
     assert stop - start <= MAX_TIME, "CSV import exceeded max time ({})".format(MAX_TIME)
+
+    # NOTE(fblackburn): wait until pjsip reload complete before starting next test
+    time.sleep(5)
 
 
 def upload_csv(client, tenant_uuid):
