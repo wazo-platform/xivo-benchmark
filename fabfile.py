@@ -1,4 +1,4 @@
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from invoke import task
@@ -39,4 +39,4 @@ def upgrade_server(connection):
 @task
 def snapshot_server(connection):
     connection.run("mkdir -p /var/tmp/snapshot")
-    connection.run("xivo-backup db /var/tmp/snapshot/db")
+    connection.run("wazo-backup db /var/tmp/snapshot/db")
