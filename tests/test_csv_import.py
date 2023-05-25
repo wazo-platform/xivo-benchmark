@@ -1,4 +1,4 @@
-# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import time
@@ -35,9 +35,9 @@ def test_csv_import():
     result = upload_csv(client, token_data['metadata']['tenant_uuid'])
     stop = datetime.now()
 
-    assert 'created' in result, 'Result should contains the created users:\n{}'.format(result)
-    assert len(result['created']) == 100, 'Should have created 100 users\n{}'.format(result)
-    assert stop - start <= MAX_TIME, "CSV import exceeded max time ({})".format(MAX_TIME)
+    assert 'created' in result, f'Result should contains the created users:\n{result}'
+    assert len(result['created']) == 100, f'Should have created 100 users\n{result}'
+    assert stop - start <= MAX_TIME, f"CSV import exceeded max time ({MAX_TIME})"
 
     # NOTE(fblackburn): wait until pjsip reload complete before starting next test
     time.sleep(5)
