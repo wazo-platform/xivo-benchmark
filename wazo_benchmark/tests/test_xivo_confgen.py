@@ -5,15 +5,19 @@ import subprocess
 
 from hamcrest import assert_that, less_than
 
-from . import constants
+from .. import constants
 
 SSH_BASE_COMMAND = [
     'ssh',
     '-q',
-    '-o', 'PreferredAuthentications=publickey',
-    '-o', 'StrictHostKeyChecking=no',
-    '-o', 'UserKnownHostsFile=/dev/null',
-    '-l', 'root',
+    '-o',
+    'PreferredAuthentications=publickey',
+    '-o',
+    'StrictHostKeyChecking=no',
+    '-o',
+    'UserKnownHostsFile=/dev/null',
+    '-l',
+    'root',
 ]
 
 
@@ -24,11 +28,12 @@ def test_xivo_confgen_user_cpu_time():
 
 
 def _time_remote_command(remote_command, time_format):
-    ssh_command = _format_ssh_command(['/usr/bin/time', '-f', time_format] + remote_command)
+    ssh_command = _format_ssh_command(['/usr/bin/time', '-f', time_format, *remote_command])
     p = subprocess.Popen(ssh_command, stderr=subprocess.PIPE)
     _, output = p.communicate()
     if p.returncode:
-        raise Exception(f'unexpected non-zero return code: {p.returncode}')
+        msg = f'unexpected non-zero return code: {p.returncode}'
+        raise Exception(msg)
 
     return float(output)
 
