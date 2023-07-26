@@ -2,6 +2,7 @@ import csv
 import itertools
 import os
 import sys
+from collections.abc import Iterator, Mapping
 from itertools import count
 
 import sqlalchemy
@@ -10,6 +11,32 @@ ASSETS_DIR = os.getenv('WAZO_BENCHMARK_ASSETS_DIR', 'assets')
 DATABASE_URI = os.getenv('WAZO_BENCHMARK_DATABASE_URI', 'postgresql://localhost:5432/asterisk')
 MAX_GENERATED_CELS = int(os.getenv('WAZO_BENCHMARK_MAX_CELS') or 100_000_000)
 GENERATED_CELS_FILENAME = os.getenv('WAZO_BENCHMARK_GENERATED_CELS_FILENAME', f'{MAX_GENERATED_CELS}_cels.csv')
+
+CEL_COLUMNS = (
+    'id',
+    'eventtype',
+    'eventtime',
+    'userdeftype',
+    'cid_name',
+    'cid_num',
+    'cid_ani',
+    'cid_rdnis',
+    'cid_dnid',
+    'exten',
+    'context',
+    'channame',
+    'appname',
+    'appdata',
+    'amaflags',
+    'accountcode',
+    'peeraccount',
+    'uniqueid',
+    'linkedid',
+    'userfield',
+    'peer',
+    'call_log_id',
+    'extra',
+)
 
 
 def log(*args):
@@ -65,11 +92,12 @@ def generate_cel_sequences(base_cels):
         log(f'Generated total of {total_cels} entries')
 
 
-def load_cel_table(seed_data):
-    engine = sqlalchemy.create_engine(DATABASE_URI)
-    data = generate_cel_sequences(seed_data)
-    with engine.connect(close_with_result=True) as conn:
-        conn.execute(sqlalchemy.insert(sqlalchemy.table('cel')), data)
+def write_cel_to_database(cel_stream: Iterator[Mapping], config):
+    engine = sqlalchemy.create_engine(config['database_uri'])
+    table = sqlalchemy.table('cel', *(sqlalchemy.column(col) for col in CEL_COLUMNS))
+    with engine.connect(close_with_result=False) as conn:
+        while batch := list(itertools.islice(cel_stream, 1000)):
+            conn.execute(sqlalchemy.insert(table), batch)
 
 
 class SQLCSV(csv.Dialect):
@@ -96,4 +124,5 @@ if __name__ == '__main__':
         log(csvreader.fieldnames)
         initiator = list(csvreader)
 
-    write_generator_to_csv_file(sys.stdout, generate_cel_sequences(initiator), fieldnames=csvreader.fieldnames)
+    # write_generator_to_csv_file(sys.stdout, generate_cel_sequences(initiator), fieldnames=csvreader.fieldnames)
+    write_cel_to_database(generate_cel_sequences(initiator), {'database_uri': DATABASE_URI})
