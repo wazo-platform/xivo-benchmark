@@ -4,15 +4,16 @@
 import logging
 import os
 import subprocess
-import sys
 import time
 import types
 from contextlib import contextmanager
+from dataclasses import asdict, dataclass, field
 from uuid import uuid4
 
 import kombu
+import pytest
 
-from . import constants
+from .. import constants
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,41 @@ SSH_BASE_COMMAND = [
     '-l',
     'root',
 ]
-HOST = os.getenv('WAZO_BENCHMARK_HOST', constants.HOST)
+
+
+@dataclass
+class BusConfig:
+    username: str = 'guest'
+    password: str = 'guest'
+    host: str = constants.HOST
+    vhost: str = ''
+    port: int = 5672
+    exchange_name: str = 'wazo-headers'
+    exchange_type: str = 'headers'
+    timeout: int = 60 * 5
+
+
+@dataclass
+class Config:
+    benchmark_host: str
+    linkedid: str
+    bus_config: BusConfig = field(default_factory=BusConfig)
+    max_processing_time = 10
+    assets_dir: str = constants.ASSET_DIR
+
+
+@pytest.fixture()
+def config():
+    host = os.getenv('WAZO_BENCHMARK_HOST', constants.HOST)
+    bus_config = BusConfig(
+        username=os.getenv('WAZO_BENCHMARK_BUS_USERNAME', BusConfig.username),
+        password=os.getenv('WAZO_BENCHMARK_BUS_PASSWORD', BusConfig.password),
+        host=host,
+    )
+    linkedid = os.getenv('WAZO_BENCHMARK_LINKEDID')
+    assert linkedid, linkedid
+    config = Config(bus_config=bus_config, linkedid=linkedid, benchmark_host=host)
+    return config
 
 
 def ssh_command(host, ssh_args=None, remote_command=None):
@@ -55,21 +90,8 @@ def ssh_tunnel(host, port: int):
         return
 
 
-_DEFAULT_CONFIG = {
-    'username': 'guest',
-    'password': 'guest',
-    'host': 'localhost',
-    'vhost': '',
-    'port': 5672,
-    'exchange_name': 'wazo-headers',
-    'exchange_type': 'headers',
-}
-BUS_TIMEOUT = 60 * 5
-MAX_PROCESSING_TIME = 10
-
-
-def send_linkedid_end(connection: kombu.Connection, exchange_config, linkedid):
-    exchange = kombu.Exchange(exchange_config['exchange_name'], type=exchange_config['exchange_type'])
+def send_linkedid_end(connection: kombu.Connection, exchange_config: BusConfig, linkedid):
+    exchange = kombu.Exchange(exchange_config.exchange_name, type=exchange_config.exchange_type)
     producer = kombu.Producer(connection, exchange=exchange, auto_declare=True)
     payload = {
         'data': {
@@ -96,10 +118,9 @@ def timer():
         logger.info('Stopping timer at time %f; %f seconds elapsed', obj.end_time, obj.elapsed_time)
 
 
-def listen_for_call_log_created(connection: kombu.Connection, config):
-    exchange = kombu.Exchange(config['exchange_name'], type=config['exchange_type'])
+def listen_for_call_log_created(connection: kombu.Connection, config: BusConfig):
+    exchange = kombu.Exchange(config.exchange_name, type=config.exchange_type)
     queue_name = str(uuid4())
-    # headers = {"name": "call_log_created"}
     queue = kombu.Queue(
         name=queue_name,
         exchange=exchange,
@@ -115,7 +136,7 @@ def listen_for_call_log_created(connection: kombu.Connection, config):
 
     with kombu.Consumer(connection, queues=[queue], auto_declare=True) as consumer:
         consumer.register_callback(message_callback)
-        connection.drain_events(timeout=BUS_TIMEOUT)
+        connection.drain_events(timeout=config.timeout)
     return messages.pop()
 
 
@@ -123,35 +144,22 @@ def project(m, ks):
     return {k: m.get(k) for k in ks}
 
 
-def test_call_logd_processing(config):
-    bus_url = 'amqp://{username}:{password}@{host}:{port}/{vhost}'.format_map(config)
+def test_call_logd_processing(config: Config):
+    bus_config = config.bus_config
+    bus_url = 'amqp://{username}:{password}@{host}:{port}/{vhost}'.format_map(asdict(bus_config))
 
-    exchange_config = project(config, ['exchange_type', 'exchange_name'])
     logger.info('Starting ssh tunnel')
-    with ssh_tunnel(config['host'], config['port']):
+    with ssh_tunnel(bus_config.host, bus_config.port):
         logger.info('Starting rabbitmq connection')
         with kombu.Connection(bus_url) as connection:
             logger.info('Sending LINKEDID_END event')
             send_linkedid_end(
                 connection,
-                exchange_config,
-                config['linkedid'],
+                bus_config,
+                config.linkedid,
             )
             with timer() as t:
                 logger.info('Listening for call_log_created event')
-                (event_body, event_headers) = listen_for_call_log_created(connection, exchange_config)
+                (event_body, event_headers) = listen_for_call_log_created(connection, bus_config)
             assert event_headers['name'] == 'call_log_created'
-            assert t.elapsed_time <= MAX_PROCESSING_TIME
-
-
-if __name__ == '__main__':
-    logging.basicConfig(
-        level={'debug': logging.DEBUG, 'info': logging.INFO}[os.getenv('WAZO_BENCHMARK_LOG_LEVEL', 'info').lower()]
-    )
-    test_call_logd_processing(
-        dict(
-            _DEFAULT_CONFIG,
-            host=os.getenv('WAZO_BENCHMARK_HOST'),
-            linkedid=sys.argv[1],
-        )
-    )
+            assert t.elapsed_time <= config.max_processing_time
