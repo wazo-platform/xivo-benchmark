@@ -38,6 +38,23 @@ Once the server is reset, run the tests with pytest:
     pytest tests
 
 
+### call-logd tests
+For call-logd processing tests, a script is available to populate the database 'cel' table from a seed cel sequence.
+The script can be run on the command line and is configured through these environment variables:
+```
+WAZO_BENCHMARK_ASSETS_DIR=assets
+WAZO_BENCHMARK_DATABASE_URI='postgresql://localhost:5432/asterisk'
+WAZO_BENCHMARK_MAX_CELS=100_000_000
+WAZO_BENCHMARK_GENERATED_CELS_FILENAME=${WAZO_BENCHMARK_MAX_CELS}_cels.csv
+```
+The scripts connects directly to the database, and might be run locally with an ssh port forward to the test environment's database,
+or directly in the test environment.
+
+```
+$ ssh -L 5432:localhost:5432 -N wazo-benchmark.dev.wazo.io &
+$ python scripts/populate_cel_table.py
+```
+
 Modifying the server
 ==
 
