@@ -3,7 +3,6 @@ import itertools
 import os
 import sys
 from collections.abc import Iterator, Mapping
-from itertools import count
 
 import sqlalchemy
 
@@ -61,32 +60,31 @@ def generate_linkedid(initial='0.0'):
         current_head += 1
 
 
-def generate_new_cel_sequence(cel_indexer, new_linkedid, initiator_cels):
+def generate_new_cel_sequence(new_linkedid, initiator_cels):
     linkedid = new_linkedid
     uniqueid_gen = generate_uniqueid(linkedid)
     initator_linkedid = next(cel['linkedid'] for cel in initiator_cels)
     uniqueid_map = {initator_linkedid: linkedid}
     for cel in initiator_cels:
         new_cel = dict(cel)
-        new_cel['id'] = next(cel_indexer)
         new_cel['linkedid'] = linkedid
         if cel['uniqueid'] in uniqueid_map:
             new_cel['uniqueid'] = uniqueid_map[cel['uniqueid']]
         else:
             new_cel['uniqueid'] = uniqueid_map[cel['uniqueid']] = next(uniqueid_gen)
         new_cel['call_log_id'] = None
+        new_cel.pop('id', None)
         yield new_cel
 
 
 def generate_cel_sequences(base_cels):
-    cel_indexer = count(1)
     linkedid_gen = generate_linkedid(next(cel['linkedid'] for cel in base_cels))
     total_cels = 0
     log(f'Generating {MAX_GENERATED_CELS} cels')
     while total_cels < MAX_GENERATED_CELS:
         linkedid = next(linkedid_gen)
         log(f'Generating new cel sequence with linkedid {linkedid}')
-        new_rows = list(generate_new_cel_sequence(cel_indexer, linkedid, base_cels))
+        new_rows = list(generate_new_cel_sequence(linkedid, base_cels))
         yield from new_rows
         total_cels += len(new_rows)
         log(f'Generated total of {total_cels} entries')
@@ -95,7 +93,7 @@ def generate_cel_sequences(base_cels):
 def write_cel_to_database(cel_stream: Iterator[Mapping], config):
     engine = sqlalchemy.create_engine(config['database_uri'])
     table = sqlalchemy.table('cel', *(sqlalchemy.column(col) for col in CEL_COLUMNS))
-    with engine.connect(close_with_result=False) as conn:
+    with engine.connect(close_with_result=False) as conn:  # type: ignore[call-arg]
         while batch := list(itertools.islice(cel_stream, 1000)):
             conn.execute(sqlalchemy.insert(table), batch)
 
