@@ -1,14 +1,14 @@
-# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os.path
 import time
-import requests
 
+import requests
 from wazo_auth_client import Client as AuthClient
 from wazo_dird_client import Client as DirdClient
 
-from . import constants
+from .. import constants
 
 MAX_TIME = 10
 USERNAME = 'alice'
@@ -16,18 +16,8 @@ PASSWORD = 'alice'
 
 
 def test_csv_import():
-    auth_client = AuthClient(
-        constants.HOST,
-        verify_certificate=False,
-        username='admin',
-        password='proformatique'
-    )
-    dird_client = DirdClient(
-        constants.HOST,
-        https=True,
-        verify_certificate=False,
-        timeout=MAX_TIME
-    )
+    auth_client = AuthClient(constants.HOST, verify_certificate=False, username='admin', password='proformatique')
+    dird_client = DirdClient(constants.HOST, https=True, verify_certificate=False, timeout=MAX_TIME)
 
     token_data = auth_client.token.new(expiration=300)
     token = token_data['token']
@@ -57,12 +47,11 @@ def test_csv_import():
 
     assert 'created' in result, 'The result does not contain created contacts'
     assert len(result['created']) == 1000, 'expected 1000 created contacts: {}'.format(len(result['created']))
-    assert time_to_complete < MAX_TIME, 'The import took too long {}s > {}s'.format(time_to_complete,
-                                                                                    MAX_TIME)
+    assert time_to_complete < MAX_TIME, f'The import took too long {time_to_complete}s > {MAX_TIME}s'
 
 
 def upload_csv(dird_client, token):
-    filepath = os.path.join(constants.ASSET_DIR, "1000contacts.csv")
+    filepath = os.path.join(constants.ASSET_DIR, '1000contacts.csv')
     with open(filepath, 'rb') as f:
         csvdata = f.read()
         start = time.time()

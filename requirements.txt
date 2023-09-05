@@ -2,7 +2,10 @@ fabric==2.3.0  # https://github.com/pyinvoke/invoke/issues/654
 invoke==1.2.0  # https://github.com/pyinvoke/invoke/issues/654
 pyhamcrest
 pytest
-git+https://github.com/wazo-platform/wazo-lib-rest-client.git
-git+https://github.com/wazo-platform/wazo-auth-client.git
-git+https://github.com/wazo-platform/wazo-confd-client.git
-git+https://github.com/wazo-platform/wazo-dird-client.git
+https://github.com/wazo-platform/wazo-lib-rest-client/archive/master.zip
+https://github.com/wazo-platform/wazo-auth-client/archive/master.zip
+https://github.com/wazo-platform/wazo-confd-client/archive/master.zip
+https://github.com/wazo-platform/wazo-dird-client/archive/master.zip
+psycopg2-binary
+sqlalchemy==1.3.*
+kombu
