@@ -21,7 +21,7 @@ SSH_BASE_COMMAND = [
 ]
 
 
-def test_xivo_confgen_user_cpu_time():
+def test_wazo_confgen_user_cpu_time():
     elapsed_user_time = _time_remote_command(['wazo-confgen', 'test/benchmark'], '%U')
 
     assert_that(elapsed_user_time, less_than(0.1))
@@ -30,9 +30,9 @@ def test_xivo_confgen_user_cpu_time():
 def _time_remote_command(remote_command, time_format):
     ssh_command = _format_ssh_command(['/usr/bin/time', '-f', time_format, *remote_command])
     p = subprocess.Popen(ssh_command, stderr=subprocess.PIPE)
-    _, output = p.communicate()
+    error, output = p.communicate()
     if p.returncode:
-        msg = f'unexpected non-zero return code: {p.returncode}'
+        msg = f'unexpected non-zero return code {p.returncode} with output: {output}, and error: {error}'
         raise Exception(msg)
 
     return float(output)
