@@ -1,4 +1,4 @@
-# Copyright 2016-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -41,7 +41,7 @@ class BusConfig:
     port: int = 5672
     exchange_name: str = 'wazo-headers'
     exchange_type: str = 'headers'
-    timeout: int = 60 * 5
+    timeout: int = 30
 
 
 @dataclass
@@ -61,8 +61,7 @@ def config():
         password=os.getenv('WAZO_BENCHMARK_BUS_PASSWORD', BusConfig.password),
         host=host,
     )
-    linkedid = os.getenv('WAZO_BENCHMARK_LINKEDID')
-    assert linkedid, linkedid
+    linkedid = os.getenv('WAZO_BENCHMARK_LINKEDID', '1689794493.16')
     config = Config(bus_config=bus_config, linkedid=linkedid, benchmark_host=host)
     return config
 
@@ -124,7 +123,7 @@ def listen_for_call_log_created(connection: kombu.Connection, config: BusConfig)
     queue = kombu.Queue(
         name=queue_name,
         exchange=exchange,
-        bindings=[kombu.binding(exchange=exchange, routing_key='call_log.created')],
+        bindings=[kombu.binding(exchange=exchange, routing_key=None, arguments={'name': 'call_log_created'})],
         channel=connection.channel(),
     )
     messages = []
@@ -144,6 +143,7 @@ def project(m, ks):
     return {k: m.get(k) for k in ks}
 
 
+@pytest.mark.skip('No simple way to populate database remotely')
 def test_call_logd_processing(config: Config):
     bus_config = config.bus_config
     bus_url = 'amqp://{username}:{password}@{host}:{port}/{vhost}'.format_map(asdict(bus_config))

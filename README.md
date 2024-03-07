@@ -19,6 +19,22 @@ installation is finished you must go through the following steps:
   * acl:
     * `auth.users.create`
     * `confd.users.import.create`
+    * `confd.contexts.read`
+
+ * Add the following line in `/etc/rabbitmq/rabbitmq.config`:
+
+   ```
+   {loopback_users, []}
+   ```
+ * `systemctl restart rabbitmq-server`
+ * Add the following line in `/etc/postgresql/13/main/postgresql.conf`:
+   ```
+   listen_addresses = '0.0.0.0'
+   ```
+ * Add the following line in `/etc/postgresql/13/main/pg_hba.conf`:
+   ```
+   host all asterisk 0.0.0.0/0   md5
+   ```
 
 Once the server is ready, install the python dependencies for running the tests:
 
