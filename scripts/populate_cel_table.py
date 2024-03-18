@@ -122,7 +122,8 @@ if __name__ == '__main__':
     with open(f'{ASSETS_DIR}/cel_seed.csv') as file:
         csvreader = csv.DictReader(file, dialect=SQLCSV)
         log(csvreader.fieldnames)
+        assert csvreader.fieldnames
         initiator = list(csvreader)
 
-    # write_generator_to_csv_file(sys.stdout, generate_cel_sequences(initiator), fieldnames=csvreader.fieldnames)
-    write_cel_to_database(generate_cel_sequences(initiator), {'database_uri': DATABASE_URI})
+    gen = generate_cel_sequences(initiator)
+    write_generator_to_csv_file(sys.stdout, gen, fieldnames=[f for f in csvreader.fieldnames if f != 'id'])
