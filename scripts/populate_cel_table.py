@@ -94,8 +94,10 @@ def write_cel_to_database(cel_stream: Iterator[Mapping], config):
     engine = sqlalchemy.create_engine(config['database_uri'])
     table = sqlalchemy.table('cel', *(sqlalchemy.column(col) for col in CEL_COLUMNS))
     with engine.connect(close_with_result=False) as conn:  # type: ignore[call-arg]
+        counter = itertools.count(start=1)
         while batch := list(itertools.islice(cel_stream, 1000)):
             conn.execute(sqlalchemy.insert(table), batch)
+            log(f"Wrote batch {next(counter)} of 1000 cels to database({config['database_uri']})")
 
 
 class SQLCSV(csv.Dialect):
