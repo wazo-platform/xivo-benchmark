@@ -12,6 +12,7 @@ from uuid import uuid4
 
 import kombu
 import pytest
+import sqlalchemy
 
 from .. import constants
 
@@ -47,13 +48,15 @@ class BusConfig:
 @dataclass
 class Config:
     benchmark_host: str
+    db_username: str
+    db_password: str
     linkedid: str
     bus_config: BusConfig = field(default_factory=BusConfig)
     max_processing_time = 10
     assets_dir: str = constants.ASSET_DIR
 
 
-@pytest.fixture()
+@pytest.fixture(scope='module')
 def config():
     host = os.getenv('WAZO_BENCHMARK_HOST', constants.HOST)
     bus_config = BusConfig(
@@ -62,8 +65,29 @@ def config():
         host=host,
     )
     linkedid = os.getenv('WAZO_BENCHMARK_LINKEDID', '1689794493.16')
-    config = Config(bus_config=bus_config, linkedid=linkedid, benchmark_host=host)
+    db_username = os.getenv('WAZO_BENCHMARK_DB_USERNAME', 'asterisk')
+    db_password = os.getenv('WAZO_BENCHMARK_DB_PASSWORD', '')
+    config = Config(
+        bus_config=bus_config, linkedid=linkedid, benchmark_host=host, db_username=db_username, db_password=db_password
+    )
     return config
+
+
+def clear_cel_table(config: Config):
+    db_uri = f'postgresql://{config.db_username}:{config.db_password}@{config.benchmark_host}:5432/asterisk'
+    engine = sqlalchemy.create_engine(db_uri)
+    with engine.connect(close_with_result=False) as conn:  # type: ignore[call-arg]
+        conn.execute(sqlalchemy.text('DELETE FROM cel'))
+
+
+@pytest.fixture(scope='module', autouse=True)
+def populate_cels(config):
+    env = os.environ.copy() | {
+        'WAZO_BENCHMARK_HOST': config.benchmark_host,
+    }
+    subprocess.run(['/usr/bin/bash', '-x', 'scripts/populate_cels.sh'], env=env, check=True, stdout=subprocess.PIPE)
+    yield
+    clear_cel_table(config)
 
 
 def ssh_command(host, ssh_args=None, remote_command=None):
@@ -143,7 +167,6 @@ def project(m, ks):
     return {k: m.get(k) for k in ks}
 
 
-@pytest.mark.skip('No simple way to populate database remotely')
 def test_call_logd_processing(config: Config):
     bus_config = config.bus_config
     bus_url = 'amqp://{username}:{password}@{host}:{port}/{vhost}'.format_map(asdict(bus_config))
