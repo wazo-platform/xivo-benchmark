@@ -1,5 +1,5 @@
-fabric==2.3.0  # https://github.com/pyinvoke/invoke/issues/654
-invoke==1.2.0  # https://github.com/pyinvoke/invoke/issues/654
+fabric
+invoke
 pyhamcrest
 pytest
 https://github.com/wazo-platform/wazo-lib-rest-client/archive/master.zip
