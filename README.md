@@ -27,11 +27,11 @@ installation is finished you must go through the following steps:
    {loopback_users, []}
    ```
  * `systemctl restart rabbitmq-server`
- * Add the following line in `/etc/postgresql/13/main/postgresql.conf`:
+ * Add the following line in `/etc/postgresql/15/main/postgresql.conf`:
    ```
    listen_addresses = '0.0.0.0'
    ```
- * Add the following line in `/etc/postgresql/13/main/pg_hba.conf`:
+ * Add the following line in `/etc/postgresql/15/main/pg_hba.conf`:
    ```
    host all asterisk 0.0.0.0/0   md5
    ```
